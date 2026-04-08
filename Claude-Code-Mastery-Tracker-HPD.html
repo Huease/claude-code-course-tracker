@@ -258,6 +258,10 @@
   body.light .toggle-moon { color: #120800; opacity: 0.3; }
   body.light .toggle-sun  { color: #120800; opacity: 1; }
   body { transition: background 0.3s, color 0.3s; }
+  .cert-wrap { text-align: center; margin-top: 8px; }
+  .cert-label { font-size: 13px; color: var(--gold3); cursor: pointer; letter-spacing: 0.04em; transition: color 0.2s; }
+  .cert-label.earned { color: var(--gold); }
+  .cert-cb { accent-color: var(--gold); cursor: pointer; vertical-align: middle; margin-right: 4px; }
 </style>
 </head>
 <body>
@@ -329,10 +333,10 @@
               <a class="task-link" href="https://anthropic.skilljar.com/claude-code-in-action" target="_blank">anthropic.skilljar.com/claude-code-in-action &rarr;</a>
             </div>
             <div class="task-type-cell"><span class="badge badge-watch">Watch</span></div>
-            <div class="task-status-cell"><select class="status-sel" data-task="1" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
+            <div class="task-status-cell"><select class="status-sel" data-task="1" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select><div class="cert-wrap"><label class="cert-label" data-task="1"><input type="checkbox" class="cert-cb" data-task="1" onchange="saveCert(this)"> 🏆 Cert earned</label></div></div>
           </div>
           <div class="task-bottom">
-            <div class="score-cell"><span class="score-label">Score</span><input class="score-inp" disabled placeholder="N/A" data-task="1"></div>
+            <div class="score-cell"><span class="score-label">Score</span><input class="score-inp" placeholder="e.g. 8/8" data-task="1" oninput="saveScore(this)"></div>
             <div class="notes-cell"><input class="notes-inp" placeholder="Add notes..." data-task="1" oninput="saveNote(this)"></div>
           </div>
         </div>
@@ -427,7 +431,7 @@
               <a class="task-link" href="https://www.geeky-gadgets.com/claude-code-skills-tutorial/" target="_blank">geeky-gadgets.com/claude-code-skills-tutorial &rarr;</a>
             </div>
             <div class="task-type-cell"><span class="badge badge-setup">Setup</span></div>
-            <div class="task-status-cell"><select class="status-sel" data-task="6" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
+            <div class="task-status-cell"><select class="status-sel" data-task="6" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select><div class="cert-wrap"><label class="cert-label" data-task="6"><input type="checkbox" class="cert-cb" data-task="6" onchange="saveCert(this)"> 🏆 Cert earned</label></div></div>
           </div>
           <div class="task-bottom">
             <div class="score-cell"><span class="score-label">Score</span><input class="score-inp" disabled placeholder="N/A" data-task="6"></div>
@@ -525,7 +529,7 @@
               <a class="task-link" href="https://www.geeky-gadgets.com/claude-code-advanced-tips-and-tricks/" target="_blank">geeky-gadgets.com/claude-code-advanced-tips-and-tricks &rarr;</a>
             </div>
             <div class="task-type-cell"><span class="badge badge-watch">Watch</span></div>
-            <div class="task-status-cell"><select class="status-sel" data-task="11" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select></div>
+            <div class="task-status-cell"><select class="status-sel" data-task="11" onchange="updateStatus(this)"><option value="not-started">Not Started</option><option value="in-progress">In Progress</option><option value="done">Done</option></select><div class="cert-wrap"><label class="cert-label" data-task="11"><input type="checkbox" class="cert-cb" data-task="11" onchange="saveCert(this)"> 🏆 Cert earned</label></div></div>
           </div>
           <div class="task-bottom">
             <div class="score-cell"><span class="score-label">Score</span><input class="score-inp" disabled placeholder="N/A" data-task="11"></div>
@@ -899,6 +903,8 @@ function updateStatus(sel){
   recalc();refreshPort();
 }
 function saveNote(inp){const id=inp.dataset.task,s=st();if(!s.t)s.t={};if(!s.t[id])s.t[id]={};s.t[id].notes=inp.value;ss(s)}
+function saveScore(inp){const id=inp.dataset.task,s=st();if(!s.t)s.t={};if(!s.t[id])s.t[id]={};s.t[id].scoreText=inp.value;ss(s)}
+function saveCert(cb){const id=cb.dataset.task,s=st();if(!s.t)s.t={};if(!s.t[id])s.t[id]={};s.t[id].cert=cb.checked;ss(s);const lbl=cb.closest('.cert-label');if(lbl){if(cb.checked)lbl.classList.add('earned');else lbl.classList.remove('earned')}}
 function saveBuildScore(inp){const id=inp.dataset.task,s=st();if(!s.t)s.t={};if(!s.t[id])s.t[id]={};s.t[id].score=inp.value;ss(s);recalc();refreshPort()}
 function saveNoteField(k,v){const s=st();if(!s.n)s.n={};s.n[k]=v;ss(s)}
 function recalc(){
@@ -932,6 +938,10 @@ function load(){
     if(si){if(d.score)si.value=d.score;si.disabled=d.status!=='done'}
     const ni=document.querySelector(`.notes-inp[data-task="${i}"]`);
     if(ni&&d.notes)ni.value=d.notes;
+    const sci=document.querySelector(`.score-inp[data-task="${i}"]:not([data-build])`);
+    if(sci&&d.scoreText)sci.value=d.scoreText;
+    const ccb=document.querySelector(`.cert-cb[data-task="${i}"]`);
+    if(ccb&&d.cert){ccb.checked=true;const lbl=ccb.closest('.cert-label');if(lbl)lbl.classList.add('earned')}
   }
   const n=s.n||{};
   [['learned','nl'],['different','nd'],['unclear','nu'],['proud','np']].forEach(([k,id])=>{const el=document.getElementById(id);if(el&&n[k])el.value=n[k]});
